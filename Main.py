@@ -13,10 +13,10 @@ query = raw_input("Enter the list of query words :")
 query = urllib.quote(query)
 #print "escaped query: " , query
 
-fbUrl = 'https://www.googleapis.com/freebase/v1/search?query=' + query + '&key='
+fbUrl = 'https://www.googleapis.com/freebase/v1/search?query=' + query + '&key=AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
 print "the fburl: " , fbUrl
 #Provide your account key here
-accountKey = ''
+accountKey = 'AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
 
 accountKeyEnc = base64.b64encode(accountKey + ':' + accountKey)
 headers = {'Authorization': 'Basic ' + accountKeyEnc}
@@ -44,7 +44,7 @@ l=  len(json_obj['result'])
 
 #query the Topic API for this mid using the URL https://www.googleapis.com/freebase/v1/topic/m/017nt?key=API_KEY
 
-topicUrl = 'https://www.googleapis.com/freebase/v1/topic' + json_obj['result'][0]['mid'] + '?key='
+topicUrl = 'https://www.googleapis.com/freebase/v1/topic' + json_obj['result'][0]['mid'] + '?key=AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
 
 print topicUrl , ": topic url"
 
@@ -395,12 +395,12 @@ def sportsTeam(p):
 for i in a:
     if(i=='Person'):
         person(json_obj1['property'])
-    if(i=='Author'):
-        author(json_obj1['property'])
-    if(i=='Actor'):
-        actor(json_obj1['property'])
-    if(i=='BusinessPerson'):
-        businessPerson(json_obj1['property'])
+        if(i=='Author'):
+            author(json_obj1['property'])
+        if(i=='Actor'):
+            actor(json_obj1['property'])
+        if(i=='BusinessPerson'):
+            businessPerson(json_obj1['property'])
     if(i=='League'):
         league(json_obj1['property'])
     if(i=='SportsTeam'):
