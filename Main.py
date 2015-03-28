@@ -60,29 +60,47 @@ print json_obj1
 # print json_obj1['result']
 print "========================================================="
 print
-a = {}
+a = {} #empty dictionaries
 b = {}
 for k in json_obj1['property']:
-    b[k] = 'true'
-#print type(k)
-
+    b[k] = 'true' #add to dictionary k:true
     if('/people/person' in k):
-        #person(json_obj1['property'])
-        #a.update('person': 'true')
-        a['person'] = 'true'
+        a['Person'] = 'true'
     if('/book/author' in k):
-        a['business_person'] = 'true'
+        a['Author'] = 'true'
+    if('/film/actor' in k or '/tv/tv_actor' in k):
+        a['Actor'] = 'true'
+    if('/organization/organization_founder' in k or '/business/board_member' in k):
+        a['BusinessPerson'] = 'true'
+    if('/sports/sports_league' in k):
+        a['League'] = 'true'
+    if('/sports/sports_team' in k or '/sports/professional_sports_team' in k):
+        a['SportsTeam'] = 'true'
 
 
 def person(p):
+
     if ('/type/object/name' in b):
         print "Name: " , p['/type/object/name']['values'][0]['text']
+
     if ('/people/person/date_of_birth' in b):
         print "Birthday: " , p['/people/person/date_of_birth']['values'][0]['text']
+
     if ('/people/person/place_of_birth' in b):
         print "Place of Birth: " , p['/people/person/place_of_birth']['values'][0]['text']
-    # if ('/people/person/place_of_birth' in b):
-    #     print "Death(Place, Date, Cause): " , p['/people/person/date_of_birth']['values'][0]['text']
+
+    if ('/people/deceased_person/place_of_death' in b):
+        print "Death: (Place, Date, Cause ) "
+        print "   " , p['/people/deceased_person/place_of_death']['values'][0]['text']
+    if ('/people/deceased_person/date_of_death' in b):
+        print "   " , p['/people/deceased_person/date_of_death']['values'][0]['text']
+    if ('/people/deceased_person/cause_of_death' in b):
+        if p['/people/deceased_person/cause_of_death']['count']>0:
+            l = len(p['/people/deceased_person/cause_of_death']['values'])
+
+            for i in range(0,l):
+                print p['/people/deceased_person/cause_of_death']['values'][i]['text'] , ","
+
     if ('/people/person/sibling_s' in b):
         if p['/people/person/sibling_s']['count']>0:
             l = len(p['/people/person/sibling_s']['values'])
@@ -97,22 +115,182 @@ def person(p):
             for i in range(0,l):
                 print p['/people/person/spouse_s']['values'][i]['property']['/people/marriage/spouse']['values'][0]['text'] , ","
 
-    print "Description: " , p['/common/topic/description']['values'][0]['value']
+    if ('/common/topic/description' in b):
+        print "Description: " , p['/common/topic/description']['values'][0]['value']
+
     return
 
-def business_person(b):
+def author(p):
+    if ('/book/author/book_editions_published' in b):
+        if p['/book/author/book_editions_published']['count']>0:
+            l = len(p['/book/author/book_editions_published']['values'])
+            print "Books: "
+            for i in range(0,l):
+                print p['/book/author/book_editions_published']['values'][i]['text'] , ","
+
+    if ('/book/author/works_written' in b):
+        if p['/book/author/works_written']['count']>0:
+            l = len(p['/book/author/works_written']['values'])
+            print "Books about: "
+            for i in range(0,l):
+                print p['/book/author/works_written']['values'][i]['text'] , ","
+
+    if ('/influence/influence_node/influenced' in b):
+        if p['/influence/influence_node/influenced']['count']>0:
+            l = len(p['/influence/influence_node/influenced']['values'])
+            print "Influenced: "
+            for i in range(0,l):
+                print p['/influence/influence_node/influenced']['values'][i]['text'] , ","
+
+    if ('/influence/influence_node/influenced_by' in b):
+        if p['/influence/influence_node/influenced_by']['count']>0:
+            l = len(p['/influence/influence_node/influenced_by']['values'])
+            print "Influenced by: "
+            for i in range(0,l):
+                print p['/influence/influence_node/influenced_by']['values'][i]['text'] , ","
+
+    return
+
+
+def actor(p):
+    if ('/film/actor/film' in b):
+        if p['/film/actor/film']['count']>0:
+            l = len(p['/film/actor/film']['values'])
+            print "Films :           Character                   Film"
+            for i in range(0,l):
+                print "                 ", p['/film/actor/film']['values'][i]['property']['/film/performance/character']['values'][0]['text'] , "                   ", p['/film/actor/film']['values'][i]['property']['/film/performance/film']['values'][0]['text']
+    # if ('/film/actor/film' in b):
+    #     if p['/film/actor/film']['count']>0:
+    #         l = len(p['/film/actor/film']['values'])
+    #         print "Films : "
+    #         for i in range(0,l):
+    #             print p['/film/actor/film']['values'][i]['text'] , ","
+
+    return
+
+def businessPerson(p):
+
+    if('/business/board_member/leader_of' in b):
+        print "LEADERSHIP:"
+        if p['/business/board_member/leader_of']['count']>0:
+            l = len(p['/business/board_member/leader_of']['values'])
+            print "Organization                   Role                        Title                           From-To"
+            for i in range(0,l):
+                print p['/business/board_member/leader_of']['values'][i]['property']['/organization/leadership/organization']['values'][0]['text'] , "      " ,p['/business/board_member/leader_of']['values'][i]['property']['/organization/leadership/role']['values'][0]['text'] , "      " ,p['/business/board_member/leader_of']['values'][i]['property']['/organization/leadership/title']['values'][0]['text'], "      " ,p['/business/board_member/leader_of']['values'][i]['property']['/organization/leadership/from']['values'][0]['text'], "-" ,p['/business/board_member/leader_of']['values'][i]['property']['/organization/leadership/to']['values'][0]['text']
+    return
+
+def league(p):
+    if('/type/object/name' in b):
+        # if ['/type/object/name']['count']>0:
+        #     l= len (p['/type/object/name']['values'])
+        print "Name:    " , p['/type/object/name']['values'][0]['text']
+    if('/sports/sports_league/sport' in b):
+        print "Sport:   " , p['/sports/sports_league/sport']['values'][0]['text']
+    if('/organization/organization/slogan' in b):
+        print "Slogan:   " , p['/organization/organization/slogan']['values'][0]['text']
+    if('/common/topic/official_website' in b):
+        print "Official Website:   " , p['/common/topic/official_website']['values'][0]['text']
+    if('/sports/sports_league/championship' in b):
+        print "Championship:   " , p['/sports/sports_league/championship']['values'][0]['text']
+
+    if('/sports/sports_league/teams' in b):
+        if p['/sports/sports_league/teams']['count']>0:
+            l = len(p['/sports/sports_league/teams']['values'])
+            print "Teams: "
+            for i in range(0,l):
+                print p['/sports/sports_league/teams']['values'][i]['property']['/sports/sports_league_participation/team']['values'][0]['text']
+
+    if '/common/topic/description' in b:
+        print "Description:"
+        print p['/common/topic/description']['values'][0]['value']
+    return
+
+def sportsTeam(p):
+    if '/type/object/name' in b:
+        print
+        print "Name:    " , p['/type/object/name']['values'][0]['text']
+
+    if '/sports/sports_team/sport' in b:
+        print
+        print "Sport:    " , p['/sports/sports_team/sport']['values'][0]['text']
+
+
+    if '/sports/sports_team/arena_stadium' in b:
+        print
+        print "Arena:    " , p['/sports/sports_team/arena_stadium']['values'][0]['text']
+
+    if '/sports/sports_team/championships' in b:
+        if p['/sports/sports_team/championships']['count']>0:
+            l=len(p['/sports/sports_team/championships']['values'])
+            print
+            print "Championships:"
+            for i in range(0,l):
+                print p['/sports/sports_team/championships']['values'][i]['text']
+
+    if '/sports/sports_team/founded' in b:
+        print
+        print "Founded:    " , p['/sports/sports_team/founded']['values'][0]['text']
+
+    if '/sports/sports_team/league' in b:
+        if p['/sports/sports_team/league']['count']>0:
+            l=len(p['/sports/sports_team/league']['values'])
+            print
+            print "Leagues:"
+            for i in range(0,l):
+                print p['/sports/sports_team/league']['values'][i]['property']['/sports/sports_league_participation/league']['values'][0]['text']
+
+    if '/sports/sports_team/location' in b:
+        print
+        print "Locations:    " , p['/sports/sports_team/location']['values'][0]['text']
+
+    if('/sports/sports_team/coaches' in b):
+        print
+        print "Coaches:"
+        if p['/sports/sports_team/coaches']['count']>0:
+            l = len(p['/sports/sports_team/coaches']['values'])
+            print "Name                   Position            From / To"
+            for i in range(0,l):
+                if(p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/to']['count'] > 0):
+                    print p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/coach']['values'][0]['text'] , "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/position']['values'][0]['text'] ,  "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/from']['values'][0]['text'], " / " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/to']['values'][0]['text']
+                else:
+                    print p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/coach']['values'][0]['text'] , "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/position']['values'][0]['text'] ,  "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/from']['values'][0]['text'], " /  now"
+
+    if '/sports/sports_team/roster' in b:
+        l = len(p['/sports/sports_team/roster']['values'])
+        print
+        print "PlayersRoster:"
+        print "Name                   Position            Number        From / To"
+        for i in range(0,l):
+            positions = ""
+            number = ""
+            if '/sports/sports_team_roster/position' in p['/sports/sports_team/roster']['values'][i]['property']:
+                l2 = len(p['/sports/sports_team/roster']['values'][i]['property']['/sports/sports_team_roster/position']['values'])
+                for j in range(0,l2):
+                    positions = positions + p['/sports/sports_team/roster']['values'][i]['property']['/sports/sports_team_roster/position']['values'][j]['text'] + ", "
+            if '/sports/sports_team_roster/number' in p['/sports/sports_team/roster']['values'][i]['property']:
+                number = p['/sports/sports_team/roster']['values'][i]['property']['/sports/sports_team_roster/number']['values'][0]['text']
+            #if(p['/sports/sports_team/roster']['values'][i]['property']['/sports/sports_team_coach_tenure/to']['count'] > 0):
+            print p['/sports/sports_team/roster']['values'][i]['property']['/sports/sports_team_roster/player']['values'][0]['text'] , "      " , positions ,  "      " , number , "      " , p['/sports/sports_team/roster']['values'][i]['property']['/sports/sports_team_roster/from']['values'][0]['text'] , " / " ,p['/sports/sports_team/roster']['values'][i]['property']['/sports/sports_team_roster/to']['values'][0]['text']
+            #else:
+                #print p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/coach']['values'][0]['text'] , "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/position']['values'][0]['text'] ,  "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/from']['values'][0]['text'], " /  now"
+
+    if '/common/topic/description' in b:
+        print
+        print "Description:"
+        print p['/common/topic/description']['values'][0]['value']
 
     return
 
 for i in a:
-    if(i=='person'):
+    if(i=='Person'):
         person(json_obj1['property'])
-    if(i=='business_person'):
-        business_person(json_obj1['property'])
-
-
-
-
-
-
-
+    if(i=='Author'):
+        author(json_obj1['property'])
+    if(i=='Actor'):
+        actor(json_obj1['property'])
+    if(i=='BusinessPerson'):
+        businessPerson(json_obj1['property'])
+    if(i=='League'):
+        league(json_obj1['property'])
+    if(i=='SportsTeam'):
+        sportsTeam(json_obj1['property'])
