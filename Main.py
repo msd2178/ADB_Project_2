@@ -9,14 +9,16 @@ import urllib
 #store the url thingy in strings for beautification
 #check the count
 
+
+
 query = raw_input("Enter the list of query words :")
 query1 = urllib.quote(query)
 #print "escaped query: " , query
 
-fbUrl = 'https://www.googleapis.com/freebase/v1/search?query=' + query1 + '&key='
+fbUrl = 'https://www.googleapis.com/freebase/v1/search?query=' + query1 + '&key=AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
 print "the fburl: " , fbUrl
 #Provide your account key here
-accountKey = ''
+accountKey = 'AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
 
 accountKeyEnc = base64.b64encode(accountKey + ':' + accountKey)
 headers = {'Authorization': 'Basic ' + accountKeyEnc}
@@ -49,7 +51,7 @@ a = {} #dictionary for Entity types
 b = {} #dictionary for Freebase types
 print "Let me see....."
 while(entityNumber < l):
-    topicUrl = 'https://www.googleapis.com/freebase/v1/topic' + json_obj['result'][entityNumber]['mid'] + '?key='
+    topicUrl = 'https://www.googleapis.com/freebase/v1/topic' + json_obj['result'][entityNumber]['mid'] + '?key=AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
 
     print topicUrl , ": topic url"
 
@@ -97,7 +99,7 @@ def person(p):
         t = ""
         for key in a.keys():
             t = t + key + ", "
-
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "                         " , p['/type/object/name']['values'][0]['text'] , "(" , t , ")"
         print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         #print
@@ -412,17 +414,61 @@ def sportsTeam(p):
     return
 
 
+print a
+u=a.keys()
+for i in u:
+    if(i=='Person'):
+        for i in u:
+            if i== 'League' or i== 'SportsTeam':
+                del a[i]
+    if(i=='League'):
+        for i in u:
+            if i== 'Person' or i== 'Author' or i=='Actor' or i=='BusinessPerson' or i == 'SportsTeam':
+                del a[i]
+    if(i=='SportsTeam'):
+        for i in u:
+            if i== 'Person' or i== 'Author' or i=='Actor' or i=='BusinessPerson' or i =='League':
+                del a[i]
+print a
 
+print a
 for i in a:
     if(i=='Person'):
         person(json_obj1['property'])
-        if(i=='Author'):
+    if(i=='Author'):
             author(json_obj1['property'])
-        if(i=='Actor'):
+    if(i=='Actor'):
             actor(json_obj1['property'])
-        if(i=='BusinessPerson'):
+    if(i=='BusinessPerson'):
             businessPerson(json_obj1['property'])
     if(i=='League'):
         league(json_obj1['property'])
     if(i=='SportsTeam'):
         sportsTeam(json_obj1['property'])
+print a
+
+
+
+#     if(i=='Person'):
+#         person(json_obj1['property'])
+#         for i in u:
+#             if i== 'League' or i== 'SportsTeam':
+#                 del a[i]
+#
+#     if(i=='Author'):
+#             author(json_obj1['property'])
+#     if(i=='Actor'):
+#             actor(json_obj1['property'])
+#     if(i=='BusinessPerson'):
+#             businessPerson(json_obj1['property'])
+#     if(i=='League'):
+#         for i in u:
+#             if i== 'Person' or i== 'Author' or i=='Actor':
+#                 del a[i]
+#         league(json_obj1['property'])
+#     if(i=='SportsTeam'):
+#         for i in u:
+#             if i== 'Person' or i== 'Author' or i=='Actor':
+#                 del a[i]
+#         sportsTeam(json_obj1['property'])
+# print a
