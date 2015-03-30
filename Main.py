@@ -10,13 +10,13 @@ import urllib
 #check the count
 
 query = raw_input("Enter the list of query words :")
-query = urllib.quote(query)
+query1 = urllib.quote(query)
 #print "escaped query: " , query
 
-fbUrl = 'https://www.googleapis.com/freebase/v1/search?query=' + query + '&key=AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
+fbUrl = 'https://www.googleapis.com/freebase/v1/search?query=' + query1 + '&key='
 print "the fburl: " , fbUrl
 #Provide your account key here
-accountKey = 'AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
+accountKey = ''
 
 accountKeyEnc = base64.b64encode(accountKey + ':' + accountKey)
 headers = {'Authorization': 'Basic ' + accountKeyEnc}
@@ -44,56 +44,75 @@ l=  len(json_obj['result'])
 
 #query the Topic API for this mid using the URL https://www.googleapis.com/freebase/v1/topic/m/017nt?key=API_KEY
 
-topicUrl = 'https://www.googleapis.com/freebase/v1/topic' + json_obj['result'][0]['mid'] + '?key=AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
+entityNumber = 0 # To track which entity we are currently searching in order of relevance
+a = {} #dictionary for Entity types
+b = {} #dictionary for Freebase types
+print "Let me see....."
+while(entityNumber < l):
+    topicUrl = 'https://www.googleapis.com/freebase/v1/topic' + json_obj['result'][entityNumber]['mid'] + '?key='
 
-print topicUrl , ": topic url"
+    print topicUrl , ": topic url"
 
-req1 = urllib2.Request(topicUrl, headers = headers)
-response1 = urllib2.urlopen(req1)
-json_obj1 = json.load(response1)
-# print type (json_obj1)
-# print json_obj1
-# l1=  len(json_obj1['result'])
-# print l1 , ":this is d length"
-# #print json_obj
-#
-# print json_obj1['result']
-# print "========================================================="
-# print
-a = {} #empty dictionaries
-b = {}
-for k in json_obj1['property']:
-    b[k] = 'true' #add to dictionary k:true
-    if('/people/person' in k):
-        a['Person'] = 'true'
-    if('/book/author' in k):
-        a['Author'] = 'true'
-    if('/film/actor' in k or '/tv/tv_actor' in k):
-        a['Actor'] = 'true'
-    if('/organization/organization_founder' in k or '/business/board_member' in k):
-        a['BusinessPerson'] = 'true'
-    if('/sports/sports_league' in k):
-        a['League'] = 'true'
-    if('/sports/sports_team' in k or '/sports/professional_sports_team' in k):
-        a['SportsTeam'] = 'true'
+    req1 = urllib2.Request(topicUrl, headers = headers)
+    response1 = urllib2.urlopen(req1)
+    json_obj1 = json.load(response1)
+    # print type (json_obj1)
+    # print json_obj1
+    # l1=  len(json_obj1['result'])
+    # print l1 , ":this is d length"
+    # #print json_obj
+    #
+    # print json_obj1['result']
+    # print "========================================================="
+    # print
+    a = {} #dictionary for Entity types
+    b = {} #dictionary for Freebase types
+    for k in json_obj1['property']:
+        b[k] = 'true' #add to dictionary k:true
+        if('/people/person' in k):
+            a['Person'] = 'true'
+        if('/book/author' in k):
+            a['Author'] = 'true'
+        if('/film/actor' in k or '/tv/tv_actor' in k):
+            a['Actor'] = 'true'
+        if('/organization/organization_founder' in k or '/business/board_member' in k):
+            a['BusinessPerson'] = 'true'
+        if('/sports/sports_league' in k):
+            a['League'] = 'true'
+        if('/sports/sports_team' in k or '/sports/professional_sports_team' in k):
+            a['SportsTeam'] = 'true'
+
+    if(bool(a)): #if there exists matching property of interests generate the infobox
+        break
+
+    entityNumber +=1 # else search the next entity
+if(not bool(a) ):
+    print "No related information about query [" , query  , "] was found!"
+
 
 
 def person(p):
 
     if ('/type/object/name' in b):
-        print
+        t = ""
+        for key in a.keys():
+            t = t + key + ", "
+
+        print "                         " , p['/type/object/name']['values'][0]['text'] , "(" , t , ")"
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
+        #print
         print "Name: " , p['/type/object/name']['values'][0]['text']
 
     if ('/people/person/date_of_birth' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Birthday: " , p['/people/person/date_of_birth']['values'][0]['text']
 
     if ('/people/person/place_of_birth' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Place of Birth: " , p['/people/person/place_of_birth']['values'][0]['text']
 
     if ('/people/deceased_person/place_of_death' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Death: (Place, Date, Cause ) "
         print "   " , p['/people/deceased_person/place_of_death']['values'][0]['text']
     if ('/people/deceased_person/date_of_death' in b):
@@ -108,7 +127,7 @@ def person(p):
     if ('/people/person/sibling_s' in b):
         if p['/people/person/sibling_s']['count']>0:
             l = len(p['/people/person/sibling_s']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Siblings: "
             for i in range(0,l):
                 print p['/people/person/sibling_s']['values'][i]['property']['/people/sibling_relationship/sibling']['values'][0]['text'] , ","
@@ -124,7 +143,7 @@ def person(p):
     if ('/people/person/spouse_s' in b):
         if p['/people/person/spouse_s']['count']>0:
             l = len(p['/people/person/spouse_s']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Spouses: "
             for i in range(0,l):
                 duration = ""
@@ -146,7 +165,7 @@ def person(p):
 
 
     if ('/common/topic/description' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Description: " , p['/common/topic/description']['values'][0]['value']
 
     return
@@ -156,7 +175,7 @@ def author(p):
     if ('/book/author/works_written' in b):
         if p['/book/author/works_written']['count']>0:
             l = len(p['/book/author/works_written']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Books: "
             for i in range(0,l):
                 print p['/book/author/works_written']['values'][i]['text'] , ","
@@ -164,7 +183,7 @@ def author(p):
     if ('/book/book_subject/works' in b):
         if p['/book/book_subject/works']['count']>0:
             l = len(p['/book/book_subject/works']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Books about: "
             for i in range(0,l):
                 print p['/book/book_subject/works']['values'][i]['text'] , ","
@@ -173,7 +192,7 @@ def author(p):
     if ('/influence/influence_node/influenced' in b):
         if p['/influence/influence_node/influenced']['count']>0:
             l = len(p['/influence/influence_node/influenced']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Influenced: "
             for i in range(0,l):
                 print p['/influence/influence_node/influenced']['values'][i]['text'] , ","
@@ -181,7 +200,7 @@ def author(p):
     if ('/influence/influence_node/influenced_by' in b):
         if p['/influence/influence_node/influenced_by']['count']>0:
             l = len(p['/influence/influence_node/influenced_by']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Influenced by: "
             for i in range(0,l):
                 print p['/influence/influence_node/influenced_by']['values'][i]['text'] , ","
@@ -193,7 +212,7 @@ def actor(p):
     if ('/film/actor/film' in b):
         if p['/film/actor/film']['count']>0:
             l = len(p['/film/actor/film']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Films :           Character                   Film Name"
             for i in range(0,l):
 
@@ -222,7 +241,7 @@ def actor(p):
 def businessPerson(p):
 
     if('/business/board_member/leader_of' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "LEADERSHIP:"
         if p['/business/board_member/leader_of']['count']>0:
             l = len(p['/business/board_member/leader_of']['values'])
@@ -233,7 +252,7 @@ def businessPerson(p):
 
     if('/business/board_member/organization_board_memberships' in b):
         if p['/business/board_member/organization_board_memberships']['count']>0:
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Board Member:"
             l = len(p['/business/board_member/organization_board_memberships']['values'])
             print "Organization                   Role                        Title                           From / To"
@@ -273,7 +292,7 @@ def businessPerson(p):
     if '/organization/organization_founder/organizations_founded' in b:
         if p['/organization/organization_founder/organizations_founded']['count']>0:
             l = len(p['/organization/organization_founder/organizations_founded']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Founded: "
             for i in range (0,l):
                 print p['/organization/organization_founder/organizations_founded']['values'][i]['text']
@@ -287,75 +306,75 @@ def league(p):
     if('/type/object/name' in b):
         # if ['/type/object/name']['count']>0:
         #     l= len (p['/type/object/name']['values'])
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Name:    " , p['/type/object/name']['values'][0]['text']
     if('/sports/sports_league/sport' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Sport:   " , p['/sports/sports_league/sport']['values'][0]['text']
     if('/organization/organization/slogan' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Slogan:   " , p['/organization/organization/slogan']['values'][0]['text']
     if('/common/topic/official_website' in b):
         print
         print "Official Website:   " , p['/common/topic/official_website']['values'][0]['text']
     if('/sports/sports_league/championship' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Championship:   " , p['/sports/sports_league/championship']['values'][0]['text']
 
     if('/sports/sports_league/teams' in b):
         if p['/sports/sports_league/teams']['count']>0:
             l = len(p['/sports/sports_league/teams']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Teams: "
             for i in range(0,l):
                 print p['/sports/sports_league/teams']['values'][i]['property']['/sports/sports_league_participation/team']['values'][0]['text']
 
     if '/common/topic/description' in b:
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Description:"
         print p['/common/topic/description']['values'][0]['value']
     return
 
 def sportsTeam(p):
     if '/type/object/name' in b:
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Name:    " , p['/type/object/name']['values'][0]['text']
 
     if '/sports/sports_team/sport' in b:
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Sport:    " , p['/sports/sports_team/sport']['values'][0]['text']
 
 
     if '/sports/sports_team/arena_stadium' in b:
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Arena:    " , p['/sports/sports_team/arena_stadium']['values'][0]['text']
 
     if '/sports/sports_team/championships' in b:
         if p['/sports/sports_team/championships']['count']>0:
             l=len(p['/sports/sports_team/championships']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Championships:"
             for i in range(0,l):
                 print p['/sports/sports_team/championships']['values'][i]['text']
 
     if '/sports/sports_team/founded' in b:
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Founded:    " , p['/sports/sports_team/founded']['values'][0]['text']
 
     if '/sports/sports_team/league' in b:
         if p['/sports/sports_team/league']['count']>0:
             l=len(p['/sports/sports_team/league']['values'])
-            print
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
             print "Leagues:"
             for i in range(0,l):
                 print p['/sports/sports_team/league']['values'][i]['property']['/sports/sports_league_participation/league']['values'][0]['text']
 
     if '/sports/sports_team/location' in b:
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Locations:    " , p['/sports/sports_team/location']['values'][0]['text']
 
     if('/sports/sports_team/coaches' in b):
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Coaches:"
         if p['/sports/sports_team/coaches']['count']>0:
             l = len(p['/sports/sports_team/coaches']['values'])
@@ -368,7 +387,7 @@ def sportsTeam(p):
 
     if '/sports/sports_team/roster' in b:
         l = len(p['/sports/sports_team/roster']['values'])
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "PlayersRoster:"
         print "Name                   Position            Number        From / To"
         for i in range(0,l):
@@ -386,11 +405,13 @@ def sportsTeam(p):
                 #print p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/coach']['values'][0]['text'] , "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/position']['values'][0]['text'] ,  "      " ,p['/sports/sports_team/coaches']['values'][i]['property']['/sports/sports_team_coach_tenure/from']['values'][0]['text'], " /  now"
 
     if '/common/topic/description' in b:
-        print
+        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
         print "Description:"
         print p['/common/topic/description']['values'][0]['value']
 
     return
+
+
 
 for i in a:
     if(i=='Person'):

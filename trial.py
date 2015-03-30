@@ -8,3 +8,11 @@ import urllib
 # print f.read()
 
 print urllib.quote("cat dog mouse")
+
+
+a = {}
+print bool(a)
+a = { 'apple' : 'true'}
+print bool(a)
+
+
