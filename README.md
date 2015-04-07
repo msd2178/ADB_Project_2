@@ -35,16 +35,16 @@ You will need to run the python file Run.py with the following parameters:
 -t: Infobox/Question
 
 Sample commands:
-1.	python Run.py -key AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8 -q Who created Microsoft? -t question
+1.	python Run.py -key XXXXXX -q Who created Microsoft? -t question
 
-2.	python Run.py -key AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8 -f Queries.txt -t infobox
+2.	python Run.py -key XXXXXX -f Queries.txt -t infobox
 
-3. 	python Run.py -key AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8
+3. 	python Run.py -key XXXXXX
    	(for interactive mode)
 
-4.	python Run.py -key AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8 -f C:\Users\Utkarsha\Desktop\IB.txt -t infobox
+4.	python Run.py -key XXXXXX -f C:\Users\Utkarsha\Desktop\IB.txt -t infobox
 
-5. python Run.py -key AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8 -f      C:\Users\Utkarsha\Desktop\QNA.txt -t question
+5. python Run.py -key XXXXXX -f      C:\Users\Utkarsha\Desktop\QNA.txt -t question
 
 
 (d) Internal Design:
