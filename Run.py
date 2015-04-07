@@ -3,7 +3,7 @@ import sys
 from ADBProjectPart1 import Infobox
 from ADBProjectPart2 import QuestionAnswering
 
-#python Run.py -key AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8 -q Who created Microsoft? -t question
+#python Run.py -key XXXXXX -q Who created Microsoft? -t question
 
 key = ''
 filePath = ''

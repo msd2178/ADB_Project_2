@@ -17,7 +17,7 @@ def Infobox(key, query):
         fbUrl = 'https://www.googleapis.com/freebase/v1/search?query=' + query1 + '&key=' + key
         # print "the fburl: " , fbUrl
         #Provide your account key here
-        #accountKey = 'AIzaSyBW2UrVGC4_05gNjzEojWziXZivR1NFF6Y'
+        #accountKey = 'XXXXXX'
         accountKey = key
         accountKeyEnc = base64.b64encode(accountKey + ':' + accountKey)
         headers = {'Authorization': 'Basic ' + accountKeyEnc}
@@ -481,4 +481,4 @@ def Infobox(key, query):
         pass
 
 if __name__=='__main__':
-    Infobox("AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8", "albert einstein")
+    Infobox("XXXXXX", "albert einstein")

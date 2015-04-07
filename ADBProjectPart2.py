@@ -92,4 +92,4 @@ def QuestionAnswering(key, fullQuery):
 
 
 #if __name__=='__main__':
-#    QuestionAnswering("AIzaSyDYqLECS8jeMv18aAWdFgUQeA-AxD94jp8","Who created")
+#    QuestionAnswering("XXXXXX","Who created")
